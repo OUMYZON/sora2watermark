@@ -2,6 +2,7 @@ from pathlib import Path
 
 import ffmpeg
 import numpy as np
+from typing import List
 
 
 class VideoLoader:
@@ -30,6 +31,37 @@ class VideoLoader:
 
     def __len__(self):
         return self.total_frames
+
+    def get_slice(self, start: int, end: int) -> List[np.ndarray]:
+        num_frames = end - start
+        if num_frames <= 0:
+            return []        
+        start_time = start / self.fps
+        process_in = (
+            ffmpeg.input(self.video_path, ss=start_time)
+            .output("pipe:", format="rawvideo", pix_fmt="bgr24", frames=num_frames)
+            .global_args("-loglevel", "error")
+            .run_async(pipe_stdout=True)
+        )
+        
+        frames = []
+        try:
+            for _ in range(num_frames):
+                in_bytes = process_in.stdout.read(self.width * self.height * 3)
+                if not in_bytes:
+                    break
+                frame = np.frombuffer(in_bytes, np.uint8).reshape(
+                    [self.height, self.width, 3]
+                )
+                frames.append(frame)
+        finally:
+            process_in.stdout.close()
+            if process_in.stderr:
+                process_in.stderr.close()
+            process_in.wait()
+        
+        return frames
+    
 
     def __iter__(self):
         process_in = (

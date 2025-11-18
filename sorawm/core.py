@@ -14,13 +14,15 @@ from sorawm.utils.imputation_utils import (
     get_interval_average_bbox,
     find_idxs_interval,
 )
+from sorawm.schemas import CleanerType
 
 VIDEO_EXTENSIONS = [".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv", ".webm"]
 
 class SoraWM:
-    def __init__(self):
+    def __init__(self, cleaner_type: CleanerType = CleanerType.LAMA):
         self.detector = SoraWaterMarkDetector()
-        self.cleaner = WaterMarkCleaner()
+        self.cleaner = WaterMarkCleaner(cleaner_type)
+        self.cleaner_type = cleaner_type
 
     def run_batch(self, input_video_dir_path: Path,
         output_video_dir_path: Path | None = None,
@@ -121,11 +123,13 @@ class SoraWM:
                 progress_callback(progress)
         if not quiet:
             logger.debug(f"detect missed frames: {detect_missed}")
+        bkps_full = [0, total_frames]
         if detect_missed:
             # 1. find the bkps of the bbox centers
             bkps = find_2d_data_bkps(bbox_centers)
             # add the start and end position, to form the complete interval boundaries
             bkps_full = [0] + bkps + [total_frames]
+            # bkps_full = bkps_full[0] + bkps + bkps_full[1]
             # logger.debug(f"bkps intervals: {bkps_full}")
 
             # 2. calculate the average bbox of each interval
@@ -163,23 +167,54 @@ class SoraWM:
             del bbox_centers
             del detect_missed
         
-        input_video_loader = VideoLoader(input_video_path)
 
-        for idx, frame in enumerate(tqdm(input_video_loader, total=total_frames, desc="Remove watermarks", disable=quiet)):
-            bbox = frame_bboxes[idx]["bbox"]
-            if bbox is not None:
-                x1, y1, x2, y2 = bbox
-                mask = np.zeros((height, width), dtype=np.uint8)
-                mask[y1:y2, x1:x2] = 255
-                cleaned_frame = self.cleaner.clean(frame, mask)
-            else:
-                cleaned_frame = frame
-            process_out.stdin.write(cleaned_frame.tobytes())
+        if self.cleaner_type == CleanerType.LAMA:
+            ## 1. Lama Cleaner Strategy.
+            input_video_loader = VideoLoader(input_video_path)
+            for idx, frame in enumerate(tqdm(input_video_loader, total=total_frames, desc="Remove watermarks", disable=quiet)):
+                bbox = frame_bboxes[idx]["bbox"]
+                if bbox is not None:
+                    x1, y1, x2, y2 = bbox
+                    mask = np.zeros((height, width), dtype=np.uint8)
+                    mask[y1:y2, x1:x2] = 255
+                    cleaned_frame = self.cleaner.clean(frame, mask)
+                else:
+                    cleaned_frame = frame
+                process_out.stdin.write(cleaned_frame.tobytes())
 
-            # 50% - 95%
-            if progress_callback and idx % 10 == 0:
-                progress = 50 + int((idx / total_frames) * 45)
-                progress_callback(progress)
+                # 50% - 95%
+                if progress_callback and idx % 10 == 0:
+                    progress = 50 + int((idx / total_frames) * 45)
+                    progress_callback(progress)
+        elif self.cleaner_type == CleanerType.E2FGVI_HQ:
+            ## 2. E2FGVI_HQ Cleaner Strategy.
+            input_video_loader = VideoLoader(input_video_path)
+            frame_counter = 0
+            for start, end in zip(bkps_full[:-1], bkps_full[1:]):
+                frames = np.array(input_video_loader.get_slice(start, end))
+                # masks = [np.zeros((height, width), dtype=np.uint8) for _ in range(len(frames))]
+                # masks as np to
+                masks = np.zeros((len(frames), height, width), dtype=np.uint8)
+                for idx in range(start, end):
+                    bbox = frame_bboxes[idx]["bbox"]
+                    if bbox is not None:
+                        x1, y1, x2, y2 = bbox
+                        # offset
+                        idx_offset = idx - start
+                        masks[idx_offset][y1:y2, x1:x2] = 255
+                cleaned_frames = self.cleaner.clean(frames, masks)
+                # TODO: we may have a, how to say...  a blending in overlap region here....
+
+                # write the clean frames .... 
+                for cleaned_frame in cleaned_frames:
+                    process_out.stdin.write(cleaned_frame.tobytes())
+                    frame_counter += 1
+                    # 50% - 95%
+                    if progress_callback and frame_counter % 10 == 0:
+                        progress = 50 + int((frame_counter / total_frames) * 45)
+                        progress_callback(progress)
+
+        
 
         process_out.stdin.close()
         process_out.wait()
@@ -211,7 +246,6 @@ class SoraWM:
             .overwrite_output()
             .run(quiet=True)
         )
-        # Clean up temporary file
         temp_output_path.unlink()
         logger.info(f"Saved no watermark video with audio at: {output_video_path}")
 

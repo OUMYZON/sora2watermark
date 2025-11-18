@@ -11,6 +11,14 @@ WATER_MARK_DETECT_YOLO_WEIGHTS = RESOURCES_DIR / "best.pt"
 WATER_MARK_DETECT_YOLO_WEIGHTS_HASH_JSON = RESOURCES_DIR / "model_version.json"
 
 
+CHECKPOINT_DIR = RESOURCES_DIR / "checkpoint"
+CHECKPOINT_DIR.mkdir(exist_ok=True, parents=True)
+SPYNET_CHECKPOINT_PATH = CHECKPOINT_DIR / "spynet_20210409-c6c1bd09.pth"
+# release_model/E2FGVI-HQ-CVPR22.pth
+E2FGVI_HQ_CHECKPOINT_PATH = CHECKPOINT_DIR / "E2FGVI-HQ-CVPR22.pth"
+E2FGVI_HQ_CHECKPOINT_REMOTE_URL = "https://github.com/linkedlist771/SoraWatermarkCleaner/releases/download/V0.0.1/E2FGVI-HQ-CVPR22.pth"
+
+
 OUTPUT_DIR = ROOT / "output"
 
 OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
@@ -28,3 +36,5 @@ DATA_PATH = ROOT / "data"
 DATA_PATH.mkdir(exist_ok=True, parents=True)
 
 SQLITE_PATH = DATA_PATH / "db.sqlite3"
+
+

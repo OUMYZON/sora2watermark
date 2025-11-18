@@ -8,15 +8,15 @@ This project provides an elegant way to remove the sora watermark in the sora2 g
   <tr>
     <td width="33%">
       <h3 align="center">Fast Remove</h3>
-      <video src="https://github.com/user-attachments/assets/8cdc075e-7d15-4d04-8fa2-53dd287e5f4c" width="100%"></video>
+<video src="https://github.com/user-attachments/assets/6980189e-b3e0-4fca-8a21-497b6beb6ef0" width="100%"></video>
     </td>
     <td width="33%">
       <h3 align="center" > Better Remove</h3>
-      <video src="https://github.com/user-attachments/assets/4f032fc7-97da-471b-9a54-9de2a434fa57" width="100%"></video>
+      <video src="https://github.com/user-attachments/assets/92f516e3-bff2-41e3-803d-c5093c870717" width="100%"></video>
     </td>
        <td width="33%">
       <h3 align="center">Original</h3>
-      <video src="https://github.com/user-attachments/assets/4f032fc7-97da-471b-9a54-9de2a434fa57" width="100%"></video>
+<video src="https://github.com/user-attachments/assets/1384e4ba-8478-4bf1-8b08-cc926961ad29" width="100%"></video>
     </td>
   </tr>
 </table>

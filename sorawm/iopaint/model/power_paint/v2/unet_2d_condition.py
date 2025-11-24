@@ -16,8 +16,13 @@ from typing import Any, Dict, Optional, Tuple, Union
 import torch
 import torch.utils.checkpoint
 from diffusers.models.unets.unet_2d_condition import UNet2DConditionOutput
-from diffusers.utils import (USE_PEFT_BACKEND, deprecate, logging,
-                             scale_lora_layers, unscale_lora_layers)
+from diffusers.utils import (
+    USE_PEFT_BACKEND,
+    deprecate,
+    logging,
+    scale_lora_layers,
+    unscale_lora_layers,
+)
 
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 
@@ -234,9 +239,9 @@ def UNet2DConditionModel_forward(
             # For t2i-adapter CrossAttnDownBlock2D
             additional_residuals = {}
             if is_adapter and len(down_intrablock_additional_residuals) > 0:
-                additional_residuals[
-                    "additional_residuals"
-                ] = down_intrablock_additional_residuals.pop(0)
+                additional_residuals["additional_residuals"] = (
+                    down_intrablock_additional_residuals.pop(0)
+                )
 
             if is_brushnet and len(down_block_add_samples) > 0:
                 additional_residuals["down_block_add_samples"] = [

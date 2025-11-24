@@ -14,7 +14,7 @@ def merge_frames_with_overlap(
     is_first_chunk: bool = False,
 ) -> List[Optional[np.ndarray]]:
     chunk_size = len(chunk_frames)
-    
+
     # Initialize result_frames if this is the first chunk
     if result_frames is None or is_first_chunk:
         if result_frames is None:
@@ -22,16 +22,16 @@ def merge_frames_with_overlap(
         for i in range(chunk_size):
             result_frames[start_idx + i] = chunk_frames[i]
         return result_frames
-    
+
     # Ensure result_frames is large enough
     required_size = start_idx + chunk_size
     if len(result_frames) < required_size:
         result_frames.extend([None] * (required_size - len(result_frames)))
-    
+
     # Blend overlap region
     overlap_start = 0
     overlap_end = min(overlap_size, chunk_size)
-    
+
     for i in range(overlap_start, overlap_end):
         result_idx = start_idx + i
         if result_frames[result_idx] is not None and chunk_frames[i] is not None:
@@ -43,11 +43,11 @@ def merge_frames_with_overlap(
             ).astype(np.uint8)
         elif chunk_frames[i] is not None:
             result_frames[result_idx] = chunk_frames[i]
-    
+
     # Copy non-overlap region
     for i in range(overlap_end, chunk_size):
         result_frames[start_idx + i] = chunk_frames[i]
-    
+
     return result_frames
 
 
@@ -169,6 +169,6 @@ if __name__ == "__main__":
     loader2 = VideoLoader(video_path)
     for i, frame in enumerate(loader2):
         if i >= 5:  # 只读取前 5 帧
-            print(f"提前退出，已读取 {i+1} 帧")
+            print(f"提前退出，已读取 {i + 1} 帧")
             break
     print("资源已正确清理")

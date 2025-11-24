@@ -1,6 +1,7 @@
 """
 Copyright (c) Alibaba, Inc. and its affiliates.
 """
+
 from functools import partial
 
 import torch
@@ -8,7 +9,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from sorawm.iopaint.model.anytext.ldm.modules.diffusionmodules.util import (
-    conv_nd, linear)
+    conv_nd,
+    linear,
+)
 
 
 def get_clip_token_for_string(tokenizer, string):
@@ -22,17 +25,17 @@ def get_clip_token_for_string(tokenizer, string):
         return_tensors="pt",
     )
     tokens = batch_encoding["input_ids"]
-    assert (
-        torch.count_nonzero(tokens - 49407) == 2
-    ), f"String '{string}' maps to more than a single token. Please use another string"
+    assert torch.count_nonzero(tokens - 49407) == 2, (
+        f"String '{string}' maps to more than a single token. Please use another string"
+    )
     return tokens[0, 1]
 
 
 def get_bert_token_for_string(tokenizer, string):
     token = tokenizer(string)
-    assert (
-        torch.count_nonzero(token) == 3
-    ), f"String '{string}' maps to more than a single token. Please use another string"
+    assert torch.count_nonzero(token) == 3, (
+        f"String '{string}' maps to more than a single token. Please use another string"
+    )
     token = token[0, 1]
     return token
 

@@ -5,8 +5,11 @@ import torch
 from tqdm import tqdm
 
 from sorawm.iopaint.model.anytext.ldm.modules.diffusionmodules.util import (
-    extract_into_tensor, make_ddim_sampling_parameters, make_ddim_timesteps,
-    noise_like)
+    extract_into_tensor,
+    make_ddim_sampling_parameters,
+    make_ddim_timesteps,
+    noise_like,
+)
 
 
 class DDIMSampler(object):
@@ -33,9 +36,9 @@ class DDIMSampler(object):
             verbose=verbose,
         )
         alphas_cumprod = self.model.alphas_cumprod
-        assert (
-            alphas_cumprod.shape[0] == self.ddpm_num_timesteps
-        ), "alphas have to be defined for each timestep"
+        assert alphas_cumprod.shape[0] == self.ddpm_num_timesteps, (
+            "alphas have to be defined for each timestep"
+        )
         to_torch = lambda x: x.clone().detach().to(torch.float32).to(self.device)
 
         self.register_buffer("betas", to_torch(self.model.betas))

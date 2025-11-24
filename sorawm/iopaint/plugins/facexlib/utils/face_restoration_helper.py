@@ -67,9 +67,9 @@ class FaceRestoreHelper(object):
         self.upscale_factor = upscale_factor
         # the cropped face ratio based on the square face
         self.crop_ratio = crop_ratio  # (h, w)
-        assert (
-            self.crop_ratio[0] >= 1 and self.crop_ratio[1] >= 1
-        ), "crop ration only supports >=1"
+        assert self.crop_ratio[0] >= 1 and self.crop_ratio[1] >= 1, (
+            "crop ration only supports >=1"
+        )
         self.face_size = (
             int(face_size * self.crop_ratio[1]),
             int(face_size * self.crop_ratio[0]),
@@ -279,9 +279,9 @@ class FaceRestoreHelper(object):
     def align_warp_face(self, save_cropped_path=None, border_mode="constant"):
         """Align and warp faces with face template."""
         if self.pad_blur:
-            assert len(self.pad_input_imgs) == len(
-                self.all_landmarks_5
-            ), f"Mismatched samples: {len(self.pad_input_imgs)} and {len(self.all_landmarks_5)}"
+            assert len(self.pad_input_imgs) == len(self.all_landmarks_5), (
+                f"Mismatched samples: {len(self.pad_input_imgs)} and {len(self.all_landmarks_5)}"
+            )
         for idx, landmark in enumerate(self.all_landmarks_5):
             # use 5 landmarks to get affine matrix
             # use cv2.LMEDS method for the equivalence to skimage transform
@@ -344,9 +344,9 @@ class FaceRestoreHelper(object):
                 upsample_img, (w_up, h_up), interpolation=cv2.INTER_LANCZOS4
             )
 
-        assert len(self.restored_faces) == len(
-            self.inverse_affine_matrices
-        ), "length of restored_faces and affine_matrices are different."
+        assert len(self.restored_faces) == len(self.inverse_affine_matrices), (
+            "length of restored_faces and affine_matrices are different."
+        )
         for restored_face, inverse_affine in zip(
             self.restored_faces, self.inverse_affine_matrices
         ):

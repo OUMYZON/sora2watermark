@@ -8,16 +8,24 @@ from loguru import logger
 from sqlalchemy import select
 
 from sorawm.configs import WORKING_DIR
+from sorawm.schemas import CleanerType
 from sorawm.core import SoraWM
 from sorawm.server.db import get_session
 from sorawm.server.models import Task
-from sorawm.server.schemas import Status, WMRemoveResults
+from sorawm.server.schemas import (
+    Status,
+    WMRemoveResults,
+    QueueStatusResponse,
+    QueueTaskInfo,
+    QueueSummary,
+)
 
 
 class WMRemoveTaskWorker:
     def __init__(self) -> None:
         self.queue = Queue()
         self.sora_wm = None
+        self.current_task_id: str | None = None
         self.output_dir = WORKING_DIR
         self.upload_dir = WORKING_DIR / "uploads"
         self.upload_dir.mkdir(exist_ok=True, parents=True)
@@ -27,12 +35,27 @@ class WMRemoveTaskWorker:
         self.sora_wm = SoraWM()
         logger.info("SoraWM models initialized")
 
-    async def create_task(self) -> str:
+        async with get_session() as session:
+            stmt = (
+                select(Task)
+                .where(Task.status == Status.QUEUED)
+                .order_by(Task.created_at.asc())
+            )
+            result = await session.execute(stmt)
+            pending_tasks = result.scalars().all()
+
+            for task in pending_tasks:
+                logger.info(f"Recovering pending task {task.id}")
+                # Put them back in case of the memory queue.
+                self.queue.put_nowait((task.id, Path(task.video_path)))
+
+    async def create_task(self, cleaner_type: CleanerType) -> str:
         task_uuid = str(uuid4())
         async with get_session() as session:
             task = Task(
                 id=task_uuid,
-                video_path="",  # 暂时为空，后续会更新
+                video_path="",
+                cleaner_type=cleaner_type.value,
                 status=Status.UPLOADING,
                 percentage=0,
             )
@@ -40,12 +63,21 @@ class WMRemoveTaskWorker:
         logger.info(f"Task {task_uuid} created with UPLOADING status")
         return task_uuid
 
+    # async def set_task_status(self, task_id: str, status: Status):
+    #     async with get_session() as session:
+    #         result = await session.execute(select(Task).where(Task.id == task_id))
+    #         if result.scalar_one_or_none() is None:
+    #             return
+    #         task = result.scalar_one()
+    #         task.status = status
+    #         session.commit()
+
     async def queue_task(self, task_id: str, video_path: Path):
         async with get_session() as session:
             result = await session.execute(select(Task).where(Task.id == task_id))
             task = result.scalar_one()
             task.video_path = str(video_path)
-            task.status = Status.PROCESSING
+            task.status = Status.QUEUED
             task.percentage = 0
 
         self.queue.put_nowait((task_id, video_path))
@@ -64,8 +96,10 @@ class WMRemoveTaskWorker:
         logger.info("Worker started, waiting for tasks...")
         while True:
             task_uuid, video_path = await self.queue.get()
+            self.current_task_id = task_uuid
+      
+            # await
             logger.info(f"Processing task {task_uuid}: {video_path}")
-
             try:
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                 file_suffix = video_path.suffix
@@ -79,6 +113,11 @@ class WMRemoveTaskWorker:
                     task = result.scalar_one()
                     task.status = Status.PROCESSING
                     task.percentage = 10
+                    cleaner_type = CleanerType(task.cleaner_type)
+                    # make a cleaner's swith if doesn't match
+                    if cleaner_type != self.sora_wm.cleaner_type:
+                        self.sora_wm = SoraWM(cleaner_type=cleaner_type)
+                        logger.info(f"Switched cleaner type to {cleaner_type}")
 
                 loop = asyncio.get_event_loop()
 
@@ -116,6 +155,7 @@ class WMRemoveTaskWorker:
                     task.percentage = 0
 
             finally:
+                self.current_task_id = None
                 self.queue.task_done()
 
     async def _update_progress(self, task_id: str, percentage: int):
@@ -149,5 +189,50 @@ class WMRemoveTaskWorker:
                 return None
             return Path(task.output_path)
 
+    async def get_queue_status(self) -> QueueStatusResponse:
+            """
+            获取队列状态，返回 Pydantic 模型
+            """
+            # 1. 获取内存中的实时状态快照
+            current_running = self.current_task_id
+
+            waiting_list_schemas = []
+
+            async with get_session() as session:
+                stmt = select(Task).order_by(Task.created_at.desc()).limit(limit=-1)
+
+                result = await session.execute(stmt)
+                all_recent_tasks = result.scalars().all()
+                
+                for task in all_recent_tasks:
+                    if task.id == current_running:
+                        continue
+
+                    waiting_list_schemas.append(
+                        QueueTaskInfo(
+                            id=task.id,
+                            status=task.status.value
+                            if hasattr(task.status, "value")
+                            else str(task.status),
+                            percentage=task.percentage,
+                            video_path=str(task.video_path),
+                            created_at=task.created_at,
+                        )
+                    )
+
+            real_queue_length = len([t for t in waiting_list_schemas if t.status == "QUEUED"])
+            is_busy = current_running is not None
+
+            summary = QueueSummary(
+                is_busy=is_busy,
+                queue_length=real_queue_length,
+                total_active=real_queue_length + (1 if is_busy else 0),
+            )
+
+            return QueueStatusResponse(
+                summary=summary,
+                current_task_id=current_running,
+                waiting_queue=waiting_list_schemas,
+            )
 
 worker = WMRemoveTaskWorker()

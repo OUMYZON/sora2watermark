@@ -80,7 +80,9 @@ def center_size(boxes):
         boxes: (tensor) Converted xmin, ymin, xmax, ymax form of boxes.
     """
     return torch.cat(
-        (boxes[:, 2:] + boxes[:, :2]) / 2, boxes[:, 2:] - boxes[:, :2], 1  # cx, cy
+        (boxes[:, 2:] + boxes[:, :2]) / 2,
+        boxes[:, 2:] - boxes[:, :2],
+        1,  # cx, cy
     )  # w, h
 
 
@@ -209,11 +211,15 @@ def match(
     # ensure every gt matches with its prior of max overlap
     for j in range(best_prior_idx.size(0)):  # 判别此anchor是预测哪一个boxes
         best_truth_idx[best_prior_idx[j]] = j
-    matches = truths[best_truth_idx]  # Shape: [num_priors,4] 此处为每一个anchor对应的bbox取出来
-    conf = labels[best_truth_idx]  # Shape: [num_priors]      此处为每一个anchor对应的label取出来
-    conf[
-        best_truth_overlap < threshold
-    ] = 0  # label as background   overlap<0.35的全部作为负样本
+    matches = truths[
+        best_truth_idx
+    ]  # Shape: [num_priors,4] 此处为每一个anchor对应的bbox取出来
+    conf = labels[
+        best_truth_idx
+    ]  # Shape: [num_priors]      此处为每一个anchor对应的label取出来
+    conf[best_truth_overlap < threshold] = (
+        0  # label as background   overlap<0.35的全部作为负样本
+    )
     loc = encode(matches, priors, variances)
 
     matches_landm = landms[best_truth_idx]

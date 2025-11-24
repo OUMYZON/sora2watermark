@@ -10,19 +10,29 @@ from easydict import EasyDict as edict
 from einops import rearrange, repeat
 
 from sorawm.iopaint.model.anytext.ldm.models.diffusion.ddim import DDIMSampler
-from sorawm.iopaint.model.anytext.ldm.models.diffusion.ddpm import \
-    LatentDiffusion
-from sorawm.iopaint.model.anytext.ldm.modules.attention import \
-    SpatialTransformer
+from sorawm.iopaint.model.anytext.ldm.models.diffusion.ddpm import LatentDiffusion
+from sorawm.iopaint.model.anytext.ldm.modules.attention import SpatialTransformer
 from sorawm.iopaint.model.anytext.ldm.modules.diffusionmodules.openaimodel import (
-    AttentionBlock, Downsample, ResBlock, TimestepEmbedSequential, UNetModel)
+    AttentionBlock,
+    Downsample,
+    ResBlock,
+    TimestepEmbedSequential,
+    UNetModel,
+)
 from sorawm.iopaint.model.anytext.ldm.modules.diffusionmodules.util import (
-    conv_nd, linear, timestep_embedding, zero_module)
-from sorawm.iopaint.model.anytext.ldm.modules.distributions.distributions import \
-    DiagonalGaussianDistribution
-from sorawm.iopaint.model.anytext.ldm.util import (exists,
-                                                   instantiate_from_config,
-                                                   log_txt_as_img)
+    conv_nd,
+    linear,
+    timestep_embedding,
+    zero_module,
+)
+from sorawm.iopaint.model.anytext.ldm.modules.distributions.distributions import (
+    DiagonalGaussianDistribution,
+)
+from sorawm.iopaint.model.anytext.ldm.util import (
+    exists,
+    instantiate_from_config,
+    log_txt_as_img,
+)
 
 from .recognizer import TextRecognizer, create_predictor
 
@@ -105,14 +115,14 @@ class ControlNet(nn.Module):
     ):
         super().__init__()
         if use_spatial_transformer:
-            assert (
-                context_dim is not None
-            ), "Fool!! You forgot to include the dimension of your cross-attention conditioning..."
+            assert context_dim is not None, (
+                "Fool!! You forgot to include the dimension of your cross-attention conditioning..."
+            )
 
         if context_dim is not None:
-            assert (
-                use_spatial_transformer
-            ), "Fool!! You forgot to use the spatial transformer for your cross-attention conditioning..."
+            assert use_spatial_transformer, (
+                "Fool!! You forgot to use the spatial transformer for your cross-attention conditioning..."
+            )
             from omegaconf.listconfig import ListConfig
 
             if type(context_dim) == ListConfig:
@@ -122,14 +132,14 @@ class ControlNet(nn.Module):
             num_heads_upsample = num_heads
 
         if num_heads == -1:
-            assert (
-                num_head_channels != -1
-            ), "Either num_heads or num_head_channels has to be set"
+            assert num_head_channels != -1, (
+                "Either num_heads or num_head_channels has to be set"
+            )
 
         if num_head_channels == -1:
-            assert (
-                num_heads != -1
-            ), "Either num_heads or num_head_channels has to be set"
+            assert num_heads != -1, (
+                "Either num_heads or num_head_channels has to be set"
+            )
         self.dims = dims
         self.image_size = image_size
         self.in_channels = in_channels

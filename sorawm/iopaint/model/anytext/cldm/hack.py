@@ -23,12 +23,8 @@ def enable_sliced_attention():
 
 def hack_everything(clip_skip=0):
     disable_verbosity()
-    sorawm.iopaint.model.anytext.ldm.modules.encoders.modules.FrozenCLIPEmbedder.forward = (
-        _hacked_clip_forward
-    )
-    sorawm.iopaint.model.anytext.ldm.modules.encoders.modules.FrozenCLIPEmbedder.clip_skip = (
-        clip_skip
-    )
+    sorawm.iopaint.model.anytext.ldm.modules.encoders.modules.FrozenCLIPEmbedder.forward = _hacked_clip_forward
+    sorawm.iopaint.model.anytext.ldm.modules.encoders.modules.FrozenCLIPEmbedder.clip_skip = clip_skip
     print("Enabled clip hacks.")
     return
 

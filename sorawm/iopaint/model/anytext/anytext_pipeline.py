@@ -4,6 +4,7 @@ Paper: https://arxiv.org/abs/2311.03054
 Code: https://github.com/tyxsspa/AnyText
 Copyright (c) Alibaba, Inc. and its affiliates.
 """
+
 import os
 from pathlib import Path
 
@@ -21,10 +22,8 @@ import torch
 from PIL import ImageFont
 
 from sorawm.iopaint.model.anytext.cldm.ddim_hacked import DDIMSampler
-from sorawm.iopaint.model.anytext.cldm.model import (create_model,
-                                                     load_state_dict)
-from sorawm.iopaint.model.anytext.utils import (check_channels, draw_glyph,
-                                                draw_glyph2)
+from sorawm.iopaint.model.anytext.cldm.model import create_model, load_state_dict
+from sorawm.iopaint.model.anytext.utils import check_channels, draw_glyph, draw_glyph2
 
 BBOX_MAX_NUM = 8
 PLACE_HOLDER = "*"
@@ -143,9 +142,9 @@ class AnyTextPipeline:
             elif isinstance(image, torch.Tensor):
                 image = image.cpu().numpy()
             else:
-                assert isinstance(
-                    image, np.ndarray
-                ), f"Unknown format of ori_image: {type(image)}"
+                assert isinstance(image, np.ndarray), (
+                    f"Unknown format of ori_image: {type(image)}"
+                )
             edit_image = image.clip(1, 255)  # for mask reason
             edit_image = check_channels(edit_image)
             # edit_image = resize_image(
@@ -157,16 +156,16 @@ class AnyTextPipeline:
             pos_imgs = np.zeros((w, h, 1))
         if isinstance(masked_image, str):
             masked_image = cv2.imread(masked_image)[..., ::-1]
-            assert (
-                masked_image is not None
-            ), f"Can't read draw_pos image from{masked_image}!"
+            assert masked_image is not None, (
+                f"Can't read draw_pos image from{masked_image}!"
+            )
             pos_imgs = 255 - masked_image
         elif isinstance(masked_image, torch.Tensor):
             pos_imgs = masked_image.cpu().numpy()
         else:
-            assert isinstance(
-                masked_image, np.ndarray
-            ), f"Unknown format of draw_pos: {type(masked_image)}"
+            assert isinstance(masked_image, np.ndarray), (
+                f"Unknown format of draw_pos: {type(masked_image)}"
+            )
             pos_imgs = 255 - masked_image
         pos_imgs = pos_imgs[..., 0:1]
         pos_imgs = cv2.convertScaleAbs(pos_imgs)

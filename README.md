@@ -2,10 +2,6 @@
 
 This project provides an elegant way to remove the sora watermark in the sora2 generated videos. 
 
-
-
-
-
 <table>
   <tr>
     <td width="20%">
@@ -171,6 +167,18 @@ Batch processing is also supported, now you can drag a folder or select multiple
 ## 5. WebServer
 
 Here, we provide a **FastAPI-based web server** that can quickly turn this watermark remover into a service.
+
+We also have a frontUI for the webserver, to try this:
+
+```bash
+cd frontend && bun install && bun run build
+```
+
+And then start the server, the frontend UI will be just ready in root route:
+
+> The task statuses are recoreded and can resume when server is down.
+
+![image](assests/frontend.png)
 
 Simply run:
 

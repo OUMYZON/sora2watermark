@@ -1,18 +1,22 @@
-""" Towards An End-to-End Framework for Video Inpainting
-"""
+"""Towards An End-to-End Framework for Video Inpainting"""
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from sorawm.models.model.modules.feat_prop import (
-    BidirectionalPropagation, SecondOrderDeformableAlignment)
+    BidirectionalPropagation,
+    SecondOrderDeformableAlignment,
+)
+
 # from sorawm.models.sorawm.models.model.modules.flow_comp import SPyNet
 from sorawm.models.model.modules.flow_comp import SPyNet
-from sorawm.models.model.modules.spectral_norm import \
-    spectral_norm as _spectral_norm
+from sorawm.models.model.modules.spectral_norm import spectral_norm as _spectral_norm
 from sorawm.models.model.modules.tfocal_transformer_hq import (
-    SoftComp, SoftSplit, TemporalFocalTransformerBlock)
+    SoftComp,
+    SoftSplit,
+    TemporalFocalTransformerBlock,
+)
 
 
 class BaseNetwork(nn.Module):

@@ -8,13 +8,20 @@ from typing import Any
 
 import numpy as np
 import torch
-from diffusers import (DDIMScheduler, DPMSolverMultistepScheduler,
-                       DPMSolverSinglestepScheduler,
-                       EulerAncestralDiscreteScheduler, EulerDiscreteScheduler,
-                       HeunDiscreteScheduler, KDPM2AncestralDiscreteScheduler,
-                       KDPM2DiscreteScheduler, LCMScheduler,
-                       LMSDiscreteScheduler, PNDMScheduler,
-                       UniPCMultistepScheduler)
+from diffusers import (
+    DDIMScheduler,
+    DPMSolverMultistepScheduler,
+    DPMSolverSinglestepScheduler,
+    EulerAncestralDiscreteScheduler,
+    EulerDiscreteScheduler,
+    HeunDiscreteScheduler,
+    KDPM2AncestralDiscreteScheduler,
+    KDPM2DiscreteScheduler,
+    LCMScheduler,
+    LMSDiscreteScheduler,
+    PNDMScheduler,
+    UniPCMultistepScheduler,
+)
 from loguru import logger
 from torch import conv2d, conv_transpose2d
 
@@ -674,9 +681,7 @@ def _conv2d_wrapper(
     out_channels, in_channels_per_group, kh, kw = _get_weight_shape(w)
 
     # Flip weight if requested.
-    if (
-        not flip_weight
-    ):  # conv2d() actually performs correlation (flip_weight=True) not convolution (flip_weight=False).
+    if not flip_weight:  # conv2d() actually performs correlation (flip_weight=True) not convolution (flip_weight=False).
         w = w.flip([2, 3])
 
     # Workaround performance pitfall in cuDNN 8.0.5, triggered when using

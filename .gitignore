@@ -231,3 +231,6 @@ resources/model_version.json
 .web
 examples
 resources/checkpoint
+
+
+frontend/node_modules

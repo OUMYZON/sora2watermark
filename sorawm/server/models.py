@@ -15,6 +15,7 @@ class Task(Base):
     status: Mapped[str] = mapped_column(String, nullable=False, default="PROCESSING")
     percentage: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     download_url: Mapped[str] = mapped_column(String, nullable=True)
+    cleaner_type: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, onupdate=datetime.now

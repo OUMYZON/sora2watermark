@@ -20,17 +20,28 @@ import PIL
 import torch
 from diffusers.configuration_utils import FrozenDict
 from diffusers.image_processor import VaeImageProcessor
-from diffusers.loaders import (FromSingleFileMixin, LoraLoaderMixin,
-                               TextualInversionLoaderMixin)
-from diffusers.models import (AsymmetricAutoencoderKL, AutoencoderKL,
-                              UNet2DConditionModel)
+from diffusers.loaders import (
+    FromSingleFileMixin,
+    LoraLoaderMixin,
+    TextualInversionLoaderMixin,
+)
+from diffusers.models import (
+    AsymmetricAutoencoderKL,
+    AutoencoderKL,
+    UNet2DConditionModel,
+)
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
-from diffusers.pipelines.stable_diffusion.safety_checker import \
-    StableDiffusionSafetyChecker
+from diffusers.pipelines.stable_diffusion.safety_checker import (
+    StableDiffusionSafetyChecker,
+)
 from diffusers.schedulers import KarrasDiffusionSchedulers
-from diffusers.utils import (deprecate, is_accelerate_available,
-                             is_accelerate_version, logging)
+from diffusers.utils import (
+    deprecate,
+    is_accelerate_available,
+    is_accelerate_version,
+    logging,
+)
 from diffusers.utils.torch_utils import randn_tensor
 from packaging import version
 from transformers import CLIPImageProcessor, CLIPTextModel, CLIPTokenizer
@@ -83,9 +94,9 @@ def prepare_mask_and_masked_image(
 
         # Batch single image
         if image.ndim == 3:
-            assert (
-                image.shape[0] == 3
-            ), "Image outside a batch should be of shape (3, H, W)"
+            assert image.shape[0] == 3, (
+                "Image outside a batch should be of shape (3, H, W)"
+            )
             image = image.unsqueeze(0)
 
         # Batch and add channel dim for single mask
@@ -102,15 +113,15 @@ def prepare_mask_and_masked_image(
             else:
                 mask = mask.unsqueeze(1)
 
-        assert (
-            image.ndim == 4 and mask.ndim == 4
-        ), "Image and Mask must have 4 dimensions"
-        assert (
-            image.shape[-2:] == mask.shape[-2:]
-        ), "Image and Mask must have the same spatial dimensions"
-        assert (
-            image.shape[0] == mask.shape[0]
-        ), "Image and Mask must have the same batch size"
+        assert image.ndim == 4 and mask.ndim == 4, (
+            "Image and Mask must have 4 dimensions"
+        )
+        assert image.shape[-2:] == mask.shape[-2:], (
+            "Image and Mask must have the same spatial dimensions"
+        )
+        assert image.shape[0] == mask.shape[0], (
+            "Image and Mask must have the same batch size"
+        )
 
         # Check image is in [-1, 1]
         if image.min() < -1 or image.max() > 1:
@@ -206,6 +217,7 @@ class StableDiffusionInpaintPipeline(
         feature_extractor ([`~transformers.CLIPImageProcessor`]):
             A `CLIPImageProcessor` to extract features from generated images; used as inputs to the `safety_checker`.
     """
+
     _optional_components = ["safety_checker", "feature_extractor"]
 
     def __init__(
@@ -282,9 +294,7 @@ class StableDiffusionInpaintPipeline(
             unet.config, "_diffusers_version"
         ) and version.parse(
             version.parse(unet.config._diffusers_version).base_version
-        ) < version.parse(
-            "0.9.0.dev0"
-        )
+        ) < version.parse("0.9.0.dev0")
         is_unet_sample_size_less_64 = (
             hasattr(unet.config, "sample_size") and unet.config.sample_size < 64
         )
@@ -1100,7 +1110,7 @@ class StableDiffusionInpaintPipeline(
                     f"Incorrect configuration settings! The config of `pipeline.unet`: {self.unet.config} expects"
                     f" {self.unet.config.in_channels} but received `num_channels_latents`: {num_channels_latents} +"
                     f" `num_channels_mask`: {num_channels_mask} + `num_channels_masked_image`: {num_channels_masked_image}"
-                    f" = {num_channels_latents+num_channels_masked_image+num_channels_mask}. Please verify the config of"
+                    f" = {num_channels_latents + num_channels_masked_image + num_channels_mask}. Please verify the config of"
                     " `pipeline.unet` or your `mask_image` or `image` input."
                 )
         elif num_channels_unet != 4:

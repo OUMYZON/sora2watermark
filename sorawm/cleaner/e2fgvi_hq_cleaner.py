@@ -7,8 +7,7 @@ from loguru import logger
 from pydantic import BaseModel
 from tqdm import tqdm
 
-from sorawm.configs import (E2FGVI_HQ_CHECKPOINT_PATH,
-                            E2FGVI_HQ_CHECKPOINT_REMOTE_URL)
+from sorawm.configs import E2FGVI_HQ_CHECKPOINT_PATH, E2FGVI_HQ_CHECKPOINT_REMOTE_URL
 from sorawm.models.model.e2fgvi_hq import InpaintGenerator
 from sorawm.utils.devices_utils import get_device
 from sorawm.utils.download_utils import ensure_model_downloaded
@@ -60,7 +59,9 @@ def numpy_to_tensor(frames_np, masks_np):
 # mps doesn't work here.....
 device = get_device()
 if device.type == "mps":
-    logger.warning(f"E2FGVI_HQ Cleaner doesn't support MPS, using CPU instead. But it is very very slow!!")
+    logger.warning(
+        f"E2FGVI_HQ Cleaner doesn't support MPS, using CPU instead. But it is very very slow!!"
+    )
     device = torch.device("cpu")
 
 

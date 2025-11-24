@@ -13,8 +13,12 @@ from .plms_sampler import PLMSSampler
 torch.manual_seed(42)
 import torch.nn as nn
 
-from sorawm.iopaint.helper import (download_model, get_cache_path_by_url,
-                                   load_jit_model, norm_img)
+from sorawm.iopaint.helper import (
+    download_model,
+    get_cache_path_by_url,
+    load_jit_model,
+    norm_img,
+)
 
 from .utils import make_beta_schedule, timestep_embedding
 
@@ -102,9 +106,9 @@ class DDPM(nn.Module):
         self.num_timesteps = int(timesteps)
         self.linear_start = linear_start
         self.linear_end = linear_end
-        assert (
-            alphas_cumprod.shape[0] == self.num_timesteps
-        ), "alphas have to be defined for each timestep"
+        assert alphas_cumprod.shape[0] == self.num_timesteps, (
+            "alphas have to be defined for each timestep"
+        )
 
         to_torch = lambda x: torch.tensor(x, dtype=torch.float32).to(self.device)
 

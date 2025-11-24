@@ -74,8 +74,7 @@ class SPyNet(nn.Module):
                 load_checkpoint(self, pretrained, strict=True)
             elif pretrained is not None:
                 raise TypeError(
-                    "[pretrained] should be str or None, "
-                    f"but got {type(pretrained)}."
+                    f"[pretrained] should be str or None, but got {type(pretrained)}."
                 )
 
         self.register_buffer(

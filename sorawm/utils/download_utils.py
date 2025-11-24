@@ -6,8 +6,10 @@ import requests
 from loguru import logger
 from tqdm import tqdm
 
-from sorawm.configs import (WATER_MARK_DETECT_YOLO_WEIGHTS,
-                            WATER_MARK_DETECT_YOLO_WEIGHTS_HASH_JSON)
+from sorawm.configs import (
+    WATER_MARK_DETECT_YOLO_WEIGHTS,
+    WATER_MARK_DETECT_YOLO_WEIGHTS_HASH_JSON,
+)
 
 DETECTOR_URL = "https://github.com/linkedlist771/SoraWatermarkCleaner/releases/download/V0.0.1/best.pt"
 REMOTE_MODEL_VERSION_URL = "https://raw.githubusercontent.com/linkedlist771/SoraWatermarkCleaner/refs/heads/main/model_version.json"

@@ -511,21 +511,15 @@ class DPM_Solver:
             if steps % 3 == 0:
                 orders = [
                     3,
-                ] * (
-                    K - 2
-                ) + [2, 1]
+                ] * (K - 2) + [2, 1]
             elif steps % 3 == 1:
                 orders = [
                     3,
-                ] * (
-                    K - 1
-                ) + [1]
+                ] * (K - 1) + [1]
             else:
                 orders = [
                     3,
-                ] * (
-                    K - 1
-                ) + [2]
+                ] * (K - 1) + [2]
         elif order == 2:
             if steps % 2 == 0:
                 K = steps // 2
@@ -536,9 +530,7 @@ class DPM_Solver:
                 K = steps // 2 + 1
                 orders = [
                     2,
-                ] * (
-                    K - 1
-                ) + [1]
+                ] * (K - 1) + [1]
         elif order == 1:
             K = 1
             orders = [
@@ -997,9 +989,7 @@ class DPM_Solver:
                 expand_dims(sigma_t / sigma_prev_0, dims) * x
                 - expand_dims(alpha_t * (torch.exp(-h) - 1.0), dims) * model_prev_0
                 + expand_dims(alpha_t * ((torch.exp(-h) - 1.0) / h + 1.0), dims) * D1
-                - expand_dims(
-                    alpha_t * ((torch.exp(-h) - 1.0 + h) / h**2 - 0.5), dims
-                )
+                - expand_dims(alpha_t * ((torch.exp(-h) - 1.0 + h) / h**2 - 0.5), dims)
                 * D2
             )
         else:

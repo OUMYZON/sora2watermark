@@ -86,10 +86,17 @@ def main():
     from rich import box
     from rich.console import Console
     from rich.panel import Panel
-    from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
-                               ProgressColumn, SpinnerColumn,
-                               TaskProgressColumn, TextColumn,
-                               TimeElapsedColumn, TimeRemainingColumn)
+    from rich.progress import (
+        BarColumn,
+        MofNCompleteColumn,
+        Progress,
+        ProgressColumn,
+        SpinnerColumn,
+        TaskProgressColumn,
+        TextColumn,
+        TimeElapsedColumn,
+        TimeRemainingColumn,
+    )
     from rich.table import Table
     from rich.text import Text
     from rich.text import Text as RichText
@@ -172,7 +179,9 @@ def main():
 
             # Display configuration
             config_table = Table(show_header=False, box=box.SIMPLE, padding=(0, 1))
-            config_table.add_row("📁 Input folder:", f"[cyan]{self.input_folder}[/cyan]")
+            config_table.add_row(
+                "📁 Input folder:", f"[cyan]{self.input_folder}[/cyan]"
+            )
             config_table.add_row(
                 "📁 Output folder:", f"[green]{self.output_folder}[/green]"
             )

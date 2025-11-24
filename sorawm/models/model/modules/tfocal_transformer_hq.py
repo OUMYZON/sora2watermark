@@ -1,11 +1,11 @@
 """
-    This code is based on:
-    [1] FuseFormer: Fusing Fine-Grained Information in Transformers for Video Inpainting, ICCV 2021
-        https://github.com/ruiliu-ai/FuseFormer
-    [2] Tokens-to-Token ViT: Training Vision Transformers from Scratch on ImageNet, ICCV 2021
-        https://github.com/yitu-opensource/T2T-ViT
-    [3] Focal Self-attention for Local-Global Interactions in Vision Transformers, NeurIPS 2021
-        https://github.com/microsoft/Focal-Transformer       
+This code is based on:
+[1] FuseFormer: Fusing Fine-Grained Information in Transformers for Video Inpainting, ICCV 2021
+    https://github.com/ruiliu-ai/FuseFormer
+[2] Tokens-to-Token ViT: Training Vision Transformers from Scratch on ImageNet, ICCV 2021
+    https://github.com/yitu-opensource/T2T-ViT
+[3] Focal Self-attention for Local-Global Interactions in Vision Transformers, NeurIPS 2021
+    https://github.com/microsoft/Focal-Transformer
 """
 
 import math
@@ -535,15 +535,9 @@ class WindowAttention(nn.Module):
                         :, :, :window_area, offset : (offset + (T * bias[0] * bias[1]))
                     ] = attn[
                         :, :, :window_area, offset : (offset + (T * bias[0] * bias[1]))
-                    ] + mask_all[
-                        k + 1
-                    ][
-                        :, :, None, None, :
-                    ].repeat(
+                    ] + mask_all[k + 1][:, :, None, None, :].repeat(
                         attn.shape[0] // mask_all[k + 1].shape[1], 1, 1, 1, 1
-                    ).view(
-                        -1, 1, 1, mask_all[k + 1].shape[-1]
-                    )
+                    ).view(-1, 1, 1, mask_all[k + 1].shape[-1])
 
                 offset += T * bias[0] * bias[1]
 
@@ -687,9 +681,7 @@ class TemporalFocalTransformerBlock(nn.Module):
                 nWh, nWw = x_windows_noreshape.shape[1:3]
                 x_windows_noreshape = x_windows_noreshape.view(
                     B, nWh, nWw, T, window_size_glo[0] * window_size_glo[1], C
-                ).transpose(
-                    4, 5
-                )  # B, nWh, nWw, T, C, wsize**2
+                ).transpose(4, 5)  # B, nWh, nWw, T, C, wsize**2
                 x_windows_pooled = self.pool_layers[k](x_windows_noreshape).flatten(
                     -2
                 )  # B, nWh, nWw, T, C

@@ -1,6 +1,7 @@
 """
-    BasicVSR++: Improving Video Super-Resolution with Enhanced Propagation and Alignment, CVPR 2022
+BasicVSR++: Improving Video Super-Resolution with Enhanced Propagation and Alignment, CVPR 2022
 """
+
 import torch
 import torch.nn as nn
 

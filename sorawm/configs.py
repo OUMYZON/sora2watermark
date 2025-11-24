@@ -36,3 +36,15 @@ DATA_PATH = ROOT / "data"
 DATA_PATH.mkdir(exist_ok=True, parents=True)
 
 SQLITE_PATH = DATA_PATH / "db.sqlite3"
+
+FRONTUI_DIR = ROOT / "frontend"
+FRONTUI_DIR.mkdir(exist_ok=True, parents=True)
+
+FRONTUI_DIST_DIR = FRONTUI_DIR / "dist"
+FRONTUI_DIST_DIR.mkdir(exist_ok=True, parents=True)
+
+FRONTUI_DIST_DIR_ASSETS = FRONTUI_DIST_DIR / "assets"
+FRONTUI_DIST_DIR_ASSETS.mkdir(exist_ok=True, parents=True)
+
+FRONTUI_DIST_DIR_INDEX_HTML = FRONTUI_DIST_DIR / "index.html"
+

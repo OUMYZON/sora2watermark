@@ -7,9 +7,11 @@ from tqdm import tqdm
 
 import ffmpeg
 from sorawm.schemas import CleanerType
-from sorawm.utils.imputation_utils import (find_2d_data_bkps,
-                                           find_idxs_interval,
-                                           get_interval_average_bbox)
+from sorawm.utils.imputation_utils import (
+    find_2d_data_bkps,
+    find_idxs_interval,
+    get_interval_average_bbox,
+)
 from sorawm.utils.video_utils import VideoLoader, merge_frames_with_overlap
 from sorawm.watermark_cleaner import WaterMarkCleaner
 from sorawm.watermark_detector import SoraWaterMarkDetector
@@ -239,19 +241,21 @@ class SoraWM:
                 # Add overlap at the start (except for first segment)
                 if segment_idx > 0:
                     start = max(seg_start - segment_overlap, bkps_full[segment_idx - 1])
-                
+
                 # Add overlap at the end (except for last segment)
                 if segment_idx < num_segments - 1:
                     end = min(seg_end + segment_overlap, bkps_full[segment_idx + 2])
-                
+
                 if not quiet:
-                    logger.debug(f"Segment {segment_idx}: original=[{seg_start}, {seg_end}), "
-                               f"with_overlap=[{start}, {end}), overlap={segment_overlap}")
-                
+                    logger.debug(
+                        f"Segment {segment_idx}: original=[{seg_start}, {seg_end}), "
+                        f"with_overlap=[{start}, {end}), overlap={segment_overlap}"
+                    )
+
                 frames = np.array(input_video_loader.get_slice(start, end))
                 # Convert BGR to RGB for E2FGVI_HQ cleaner (expects RGB format)
                 frames = frames[:, :, :, ::-1].copy()
-                
+
                 masks = np.zeros((len(frames), height, width), dtype=np.uint8)
                 for idx in range(start, end):
                     bbox = frame_bboxes[idx]["bbox"]
@@ -261,7 +265,7 @@ class SoraWM:
                         idx_offset = idx - start
                         masks[idx_offset][y1:y2, x1:x2] = 255
                 cleaned_frames = self.cleaner.clean(frames, masks)
-                
+
                 # Merge with overlap blending support
                 all_cleaned_frames = merge_frames_with_overlap(
                     result_frames=all_cleaned_frames,
@@ -270,18 +274,23 @@ class SoraWM:
                     overlap_size=segment_overlap,
                     is_first_chunk=(segment_idx == 0),
                 )
-                
+
                 # Determine which frames to write from this segment
                 # Write the core segment (seg_start to seg_end), skip overlaps for subsequent processing
                 write_start = seg_start
                 write_end = seg_end
-                
+
                 for write_idx in range(write_start, write_end):
-                    if write_idx < len(all_cleaned_frames) and all_cleaned_frames[write_idx] is not None:
+                    if (
+                        write_idx < len(all_cleaned_frames)
+                        and all_cleaned_frames[write_idx] is not None
+                    ):
                         cleaned_frame = all_cleaned_frames[write_idx]
                         # Convert RGB back to BGR for FFmpeg output (expects bgr24 format)
                         cleaned_frame_bgr = cleaned_frame[:, :, ::-1]
-                        process_out.stdin.write(cleaned_frame_bgr.astype(np.uint8).tobytes())
+                        process_out.stdin.write(
+                            cleaned_frame_bgr.astype(np.uint8).tobytes()
+                        )
                         frame_counter += 1
                         # 50% - 95%
                         if progress_callback and frame_counter % 10 == 0:

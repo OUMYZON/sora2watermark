@@ -204,6 +204,6 @@ if __name__ == "__main__":
     print(f"\n=== 检测统计 ===")
     print(f"总帧数: {total_frames}")
     print(f"检测到水印: {detected_frames} 帧")
-    print(f"检测率: {detected_frames/total_frames*100:.2f}%")
+    print(f"检测率: {detected_frames / total_frames * 100:.2f}%")
 
     cv2.destroyAllWindows()

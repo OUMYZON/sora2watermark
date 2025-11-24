@@ -6,10 +6,14 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from sorawm.iopaint.model.anytext.ldm.models.diffusion.sampling_util import \
-    norm_thresholding
+from sorawm.iopaint.model.anytext.ldm.models.diffusion.sampling_util import (
+    norm_thresholding,
+)
 from sorawm.iopaint.model.anytext.ldm.modules.diffusionmodules.util import (
-    make_ddim_sampling_parameters, make_ddim_timesteps, noise_like)
+    make_ddim_sampling_parameters,
+    make_ddim_timesteps,
+    noise_like,
+)
 
 
 class PLMSSampler(object):
@@ -37,9 +41,9 @@ class PLMSSampler(object):
             verbose=verbose,
         )
         alphas_cumprod = self.model.alphas_cumprod
-        assert (
-            alphas_cumprod.shape[0] == self.ddpm_num_timesteps
-        ), "alphas have to be defined for each timestep"
+        assert alphas_cumprod.shape[0] == self.ddpm_num_timesteps, (
+            "alphas have to be defined for each timestep"
+        )
         to_torch = lambda x: x.clone().detach().to(torch.float32).to(self.model.device)
 
         self.register_buffer("betas", to_torch(self.model.betas))

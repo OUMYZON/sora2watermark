@@ -33,7 +33,6 @@ def clear_gpu_memory():
     torch.cuda.synchronize()
 
 
-
 def memory_profiling() -> MemoryProfilingResult:
     clear_gpu_memory()
     free_memory, total_memory = torch.cuda.mem_get_info()

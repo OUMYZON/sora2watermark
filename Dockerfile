@@ -1,22 +1,26 @@
-FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
+# Base image with CUDA support (GPU)
+FROM nvidia/cuda:12.0.0-runtime-ubuntu22.04
 
-# تثبيت المتطلبات الأساسية
-RUN apt-get update && \
-    apt-get install -y git ffmpeg python3 python3-pip && \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git ffmpeg python3 python3-pip && \
     apt-get clean
 
-# إنشاء مجلد العمل
+# Set working directory
 WORKDIR /app
 
-# نسخ المشروع داخل الكونتينر
-COPY . /app
+# Copy files to container
+COPY . .
 
-# تثبيت البايثون باعتماد ملف المتطلبات
+# Upgrade pip and install uv (package manager used by this project)
 RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
+RUN pip3 install uv
 
-# فتح البورت الخاص بالتطبيق
-EXPOSE 7860
+# Install python dependencies using pyproject.toml
+RUN uv sync
 
-# تشغيل التطبيق
-CMD ["python3", "start_server.py"]
+# Expose port for streamlit
+EXPOSE 8501
+
+# Start app
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]

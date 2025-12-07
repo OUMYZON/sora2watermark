@@ -1,8 +1,22 @@
-FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04   # لدعم GPU
-RUN apt-get update && apt-get install -y ffmpeg git python3-pip  # للفيديو
+FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
+
+# تثبيت المتطلبات الأساسية
+RUN apt-get update && \
+    apt-get install -y git ffmpeg python3 python3-pip && \
+    apt-get clean
+
+# إنشاء مجلد العمل
 WORKDIR /app
-COPY . .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-EXPOSE 8501
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+# نسخ المشروع داخل الكونتينر
+COPY . /app
+
+# تثبيت البايثون باعتماد ملف المتطلبات
+RUN pip3 install --upgrade pip
+RUN pip3 install -r requirements.txt
+
+# فتح البورت الخاص بالتطبيق
+EXPOSE 7860
+
+# تشغيل التطبيق
+CMD ["python3", "start_server.py"]
